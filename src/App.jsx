@@ -52,6 +52,7 @@ function App() {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [feedbackData, setFeedbackData] = useState(null);
   const [isApplying, setIsApplying] = useState(false);
+  const [comparisonData, setComparisonData] = useState(null); // { original, modified, optionTitle }
 
   // Login Handle
   const handleLogin = (name) => {
@@ -144,6 +145,7 @@ ${scenario}`;
   const applyOption = async (option) => {
     try {
       setIsApplying(true);
+      setFeedbackData(null);
 
       const userMessage = `[원본 시나리오]
 ${scenario}
@@ -152,14 +154,30 @@ ${scenario}
 ${option.title}: ${option.description}`;
 
       const modifiedScenario = await callAPI(PROMPT_APPLY_OPTION, userMessage);
-      setScenario(modifiedScenario);
-      setFeedbackData(null);
+      // 수정 전/후 비교 패널 표시 (바로 덮어쓰지 않음)
+      setComparisonData({
+        original: scenario,
+        modified: modifiedScenario,
+        optionTitle: option.title,
+      });
     } catch (err) {
       console.error(err);
       alert('시나리오 수정 중 오류가 발생했습니다: ' + err.message);
     } finally {
       setIsApplying(false);
     }
+  };
+
+  const confirmModification = () => {
+    if (!comparisonData) return;
+    setScenario(comparisonData.modified);
+    setComparisonData(null);
+  };
+
+  const rejectModification = () => {
+    setComparisonData(null);
+    // feedbackData 유지 → 사용자가 다른 옵션 선택 가능
+    setFeedbackData(null);
   };
 
   if (!isLogged) {
@@ -273,7 +291,7 @@ ${option.title}: ${option.description}`;
               </div>
             )}
 
-            {feedbackData && !isApplying && (
+            {feedbackData && !isApplying && !comparisonData && (
               <div style={{ animation: 'fadeIn 0.4s ease' }}>
                 <div className="feedback-card">
                   <h3>📝 종합 분석 결과</h3>
@@ -294,6 +312,38 @@ ${option.title}: ${option.description}`;
                 <button className="btn-primary" style={{ background: 'var(--panel)', border: '1px solid var(--border)', marginTop: '20px' }} onClick={() => setFeedbackData(null)}>
                   취소 / 다른 부분 수정하기
                 </button>
+              </div>
+            )}
+
+            {/* ── 수정 전/후 비교 패널 ── */}
+            {comparisonData && !isApplying && (
+              <div className="comparison-panel" style={{ animation: 'fadeIn 0.4s ease' }}>
+                <div className="comparison-header">
+                  <span className="comparison-badge">✏️ 수정 미리보기</span>
+                  <span className="comparison-option-title">적용 방향: {comparisonData.optionTitle}</span>
+                </div>
+
+                <div className="comparison-columns">
+                  {/* 수정 전 */}
+                  <div className="comparison-col comparison-col--before">
+                    <div className="comparison-col-label before-label">📄 수정 전</div>
+                    <pre className="comparison-text">{comparisonData.original}</pre>
+                  </div>
+                  {/* 수정 후 */}
+                  <div className="comparison-col comparison-col--after">
+                    <div className="comparison-col-label after-label">✨ 수정 후</div>
+                    <pre className="comparison-text">{comparisonData.modified}</pre>
+                  </div>
+                </div>
+
+                <div className="comparison-actions">
+                  <button className="btn-confirm" onClick={confirmModification}>
+                    ✅ 이 수정본으로 교체하기
+                  </button>
+                  <button className="btn-reject" onClick={rejectModification}>
+                    ↩️ 원본 유지하기
+                  </button>
+                </div>
               </div>
             )}
             

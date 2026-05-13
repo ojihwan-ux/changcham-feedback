@@ -274,3 +274,128 @@ header .sub { font-size: 0.68rem; color: var(--muted); margin-top: 2px; }
 
 @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
 .team-list { animation: fadeIn 0.35s ease; }
+
+/* ── 수정 전/후 비교 패널 ── */
+.comparison-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.comparison-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--border);
+}
+.comparison-badge {
+  background: linear-gradient(135deg, #7c3aed, #9333ea);
+  color: #fff;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 20px;
+  letter-spacing: 0.04em;
+}
+.comparison-option-title {
+  font-size: 0.78rem;
+  color: var(--accent2);
+  font-weight: 600;
+}
+
+.comparison-columns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.comparison-col {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+
+.comparison-col--before {
+  border-color: rgba(239, 68, 68, 0.4);
+  background: rgba(239, 68, 68, 0.05);
+}
+.comparison-col--after {
+  border-color: rgba(34, 197, 94, 0.4);
+  background: rgba(34, 197, 94, 0.05);
+}
+
+.comparison-col-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 6px 12px;
+  letter-spacing: 0.04em;
+}
+.before-label {
+  background: rgba(239, 68, 68, 0.18);
+  color: #f87171;
+  border-bottom: 1px solid rgba(239, 68, 68, 0.3);
+}
+.after-label {
+  background: rgba(34, 197, 94, 0.18);
+  color: #4ade80;
+  border-bottom: 1px solid rgba(34, 197, 94, 0.3);
+}
+
+.comparison-text {
+  font-size: 0.76rem;
+  line-height: 1.65;
+  color: var(--text);
+  white-space: pre-wrap;
+  word-break: break-word;
+  padding: 10px 12px;
+  margin: 0;
+  font-family: 'Pretendard', 'Noto Sans KR', sans-serif;
+  flex: 1;
+  max-height: 340px;
+  overflow-y: auto;
+}
+.comparison-text::-webkit-scrollbar { width: 4px; }
+.comparison-text::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+.comparison-actions {
+  display: flex;
+  gap: 10px;
+  padding-top: 4px;
+}
+
+.btn-confirm {
+  flex: 1;
+  background: linear-gradient(135deg, #16a34a, #15803d);
+  border: none;
+  color: #fff;
+  font-size: 0.88rem;
+  font-weight: 700;
+  padding: 13px 18px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: opacity 0.2s, transform 0.1s;
+  font-family: inherit;
+}
+.btn-confirm:hover { opacity: 0.88; }
+.btn-confirm:active { transform: scale(0.98); }
+
+.btn-reject {
+  flex: 1;
+  background: var(--panel);
+  border: 1px solid rgba(239, 68, 68, 0.5);
+  color: #f87171;
+  font-size: 0.88rem;
+  font-weight: 700;
+  padding: 13px 18px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.1s;
+  font-family: inherit;
+}
+.btn-reject:hover { background: rgba(239, 68, 68, 0.1); }
+.btn-reject:active { transform: scale(0.98); }
