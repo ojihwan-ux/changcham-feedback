@@ -94,7 +94,7 @@ function App() {
     if (!apiKey) throw new Error("API Key가 필요합니다.");
     const genAI = new GoogleGenerativeAI(apiKey);
     return genAI.getGenerativeModel({ 
-      model: "gemini-2.5-flash",
+      model: "gemini-2.5-flash-preview-05-20",
       systemInstruction: sysPrompt 
     });
   };
