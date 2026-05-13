@@ -71,10 +71,20 @@ function App() {
         setIsLogged(true);
       } catch (err) {
         console.error(err);
-        alert('데이터를 불러오는데 실패했습니다.');
+        // 파싱 실패 시 빈 데이터로 입장
+        const emptyData = { teamName: trimmed, scenario: '' };
+        localStorage.setItem(STORAGE_PREFIX + trimmed, JSON.stringify(emptyData));
+        setTeamData(emptyData);
+        setScenario('');
+        setIsLogged(true);
       }
     } else {
-      alert('해당 팀의 데이터가 없습니다.\n먼저 이전 해결계획서 앱에서 시나리오를 작성해주세요.');
+      // 데이터 없어도 바로 입장 — 새 시나리오 작성 모드
+      const emptyData = { teamName: trimmed, scenario: '' };
+      localStorage.setItem(STORAGE_PREFIX + trimmed, JSON.stringify(emptyData));
+      setTeamData(emptyData);
+      setScenario('');
+      setIsLogged(true);
     }
   };
 
