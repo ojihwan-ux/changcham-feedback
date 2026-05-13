@@ -205,6 +205,56 @@ ${option.title}: ${option.description}`;
     );
   }
 
+  // ── 수정 전/후 비교 전용 뷰 ──
+  if (comparisonData && !isApplying) {
+    return (
+      <div>
+        <header>
+          <div>
+            <h1>🏆 2026 학생창의력 챔피언대회 – 시나리오 작성 시스템</h1>
+            <div className="sub">시나리오 피드백 및 선택형 자동 수정 앱</div>
+          </div>
+          <div className="team-bar">
+            <span>👥</span>
+            <div>
+              <div style={{ fontSize: '0.68rem', color: 'var(--muted)' }}>현재 팀</div>
+              <div className="team-name-val">{teamName}</div>
+            </div>
+          </div>
+        </header>
+
+        <div className="comparison-fullscreen">
+          <div className="comparison-fs-header">
+            <span className="comparison-badge">✏️ 수정 미리보기</span>
+            <span className="comparison-option-title">적용 방향: {comparisonData.optionTitle}</span>
+            <span style={{ color: 'var(--muted)', fontSize: '0.78rem' }}>아래 두 버전을 비교하고 원하는 선택을 해주세요</span>
+          </div>
+
+          <div className="comparison-fs-columns">
+            <div className="comparison-fs-col comparison-fs-col--before">
+              <div className="comparison-fs-label before-label">📄 수정 전 (원본)</div>
+              <pre className="comparison-fs-text">{comparisonData.original}</pre>
+            </div>
+            <div className="comparison-fs-divider">↔</div>
+            <div className="comparison-fs-col comparison-fs-col--after">
+              <div className="comparison-fs-label after-label">✨ 수정 후 (AI 수정본)</div>
+              <pre className="comparison-fs-text">{comparisonData.modified}</pre>
+            </div>
+          </div>
+
+          <div className="comparison-fs-actions">
+            <button className="btn-confirm" onClick={confirmModification}>
+              ✅ 이 수정본으로 교체하기
+            </button>
+            <button className="btn-reject" onClick={rejectModification}>
+              ↩️ 원본 유지하기
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div>
       <header>
@@ -291,7 +341,7 @@ ${option.title}: ${option.description}`;
               </div>
             )}
 
-            {feedbackData && !isApplying && !comparisonData && (
+            {feedbackData && !isApplying && (
               <div style={{ animation: 'fadeIn 0.4s ease' }}>
                 <div className="feedback-card">
                   <h3>📝 종합 분석 결과</h3>
@@ -314,39 +364,6 @@ ${option.title}: ${option.description}`;
                 </button>
               </div>
             )}
-
-            {/* ── 수정 전/후 비교 패널 ── */}
-            {comparisonData && !isApplying && (
-              <div className="comparison-panel" style={{ animation: 'fadeIn 0.4s ease' }}>
-                <div className="comparison-header">
-                  <span className="comparison-badge">✏️ 수정 미리보기</span>
-                  <span className="comparison-option-title">적용 방향: {comparisonData.optionTitle}</span>
-                </div>
-
-                <div className="comparison-columns">
-                  {/* 수정 전 */}
-                  <div className="comparison-col comparison-col--before">
-                    <div className="comparison-col-label before-label">📄 수정 전</div>
-                    <pre className="comparison-text">{comparisonData.original}</pre>
-                  </div>
-                  {/* 수정 후 */}
-                  <div className="comparison-col comparison-col--after">
-                    <div className="comparison-col-label after-label">✨ 수정 후</div>
-                    <pre className="comparison-text">{comparisonData.modified}</pre>
-                  </div>
-                </div>
-
-                <div className="comparison-actions">
-                  <button className="btn-confirm" onClick={confirmModification}>
-                    ✅ 이 수정본으로 교체하기
-                  </button>
-                  <button className="btn-reject" onClick={rejectModification}>
-                    ↩️ 원본 유지하기
-                  </button>
-                </div>
-              </div>
-            )}
-            
           </div>
         </div>
       </div>
