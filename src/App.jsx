@@ -3,6 +3,15 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 import { Save, LogOut, KeyRound, Sparkles, CheckCircle2 } from 'lucide-react';
 
 const STORAGE_PREFIX = 'champ2026_team_';
+
+const TEAMS = [
+  { name: '겨울왕국의영재들', emoji: '❄️' },
+  { name: '듀오링고',         emoji: '🦜' },
+  { name: '오누이구조단',     emoji: '🚒' },
+  { name: '로켓단',           emoji: '🚀' },
+  { name: '뽀로링고',         emoji: '🐧' },
+  { name: '우승우리꺼',       emoji: '🏆' },
+];
 const API_KEY_STORAGE = 'champ2026_scenario_apikey';
 
 const PROMPT_GET_FEEDBACK = `당신은 대한민국 학생창의력 챔피언대회 오디션 시스템의 보조 멘토 AI입니다.
@@ -49,11 +58,11 @@ function App() {
   const [isApplying, setIsApplying] = useState(false);
 
   // Login Handle
-  const handleLogin = (e) => {
-    e?.preventDefault();
-    if (!teamName.trim()) return;
-    
-    const raw = localStorage.getItem(STORAGE_PREFIX + teamName.trim());
+  const handleLogin = (name) => {
+    const trimmed = name.trim();
+    if (!trimmed) return;
+    setTeamName(trimmed);
+    const raw = localStorage.getItem(STORAGE_PREFIX + trimmed);
     if (raw) {
       try {
         const data = JSON.parse(raw);
@@ -65,7 +74,7 @@ function App() {
         alert('데이터를 불러오는데 실패했습니다.');
       }
     } else {
-      alert('해당 팀명으로 저장된 데이터가 없습니다. 먼저 이전 웹앱에서 해결계획서와 시나리오를 작성해주세요.');
+      alert('해당 팀의 데이터가 없습니다.\n먼저 이전 해결계획서 앱에서 시나리오를 작성해주세요.');
     }
   };
 
@@ -158,17 +167,20 @@ ${option.title}: ${option.description}`;
         <div className="modal-box">
           <div className="modal-logo">✍️</div>
           <div className="modal-title">시나리오 피드백 & 작성 앱</div>
-          <div className="modal-sub">기존 팀명을 입력하면 작성하던 시나리오 데이터를 불러옵니다.</div>
-          <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-            <input 
-              type="text" 
-              className="modal-input" 
-              placeholder="팀명을 입력하세요 (예: 별난창의팀)" 
-              value={teamName}
-              onChange={(e) => setTeamName(e.target.value)}
-            />
-            <button type="submit" className="modal-btn-primary">입장하기 →</button>
-          </form>
+          <div className="modal-sub">우리 팀을 선택하면 작성하던 시나리오 데이터를 불러옵니다.</div>
+          <div className="team-list">
+            {TEAMS.map((team) => (
+              <button
+                key={team.name}
+                className="team-card"
+                onClick={() => handleLogin(team.name)}
+              >
+                <span className="team-card-emoji">{team.emoji}</span>
+                <span className="team-card-name">{team.name}</span>
+                <span className="team-card-arrow">→</span>
+              </button>
+            ))}
+          </div>
         </div>
       </div>
     );

@@ -208,3 +208,69 @@ header .sub { font-size: 0.68rem; color: var(--muted); margin-top: 2px; }
 }
 .data-summary strong { color: var(--text); }
 .data-summary ul { padding-left: 20px; margin-top: 5px; }
+
+/* ── Team Selection Cards ── */
+.modal-box {
+  max-height: 90vh;
+}
+
+.team-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  overflow-y: auto;
+  max-height: 360px;
+  padding-right: 4px;
+}
+.team-list::-webkit-scrollbar { width: 4px; }
+.team-list::-webkit-scrollbar-track { background: transparent; }
+.team-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+.team-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 14px 16px;
+  color: var(--text);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.95rem;
+  font-weight: 600;
+  text-align: left;
+  transition: background 0.18s, border-color 0.18s, transform 0.12s;
+}
+.team-card:hover {
+  background: rgba(124,58,237,0.18);
+  border-color: var(--accent);
+  transform: translateX(4px);
+}
+.team-card:active { transform: scale(0.98); }
+
+.team-card-emoji {
+  font-size: 1.4rem;
+  flex-shrink: 0;
+  width: 30px;
+  text-align: center;
+}
+.team-card-name {
+  flex: 1;
+  letter-spacing: 0.02em;
+}
+.team-card-arrow {
+  color: var(--accent);
+  font-size: 1rem;
+  opacity: 0;
+  transition: opacity 0.18s, transform 0.18s;
+  transform: translateX(-4px);
+}
+.team-card:hover .team-card-arrow {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+@keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+.team-list { animation: fadeIn 0.35s ease; }
