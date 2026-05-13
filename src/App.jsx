@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { GoogleGenerativeAI } from '@google/generative-ai';
-import { Save, LogOut, KeyRound, Sparkles, CheckCircle2 } from 'lucide-react';
+import { Save, LogOut, Sparkles } from 'lucide-react';
 
 const STORAGE_PREFIX = 'champ2026_team_';
 
@@ -12,7 +11,7 @@ const TEAMS = [
   { name: '뽀로링고',         emoji: '🐧' },
   { name: '우승우리꺼',       emoji: '🏆' },
 ];
-const API_KEY_STORAGE = 'champ2026_scenario_apikey';
+
 
 const PROMPT_GET_FEEDBACK = `당신은 대한민국 학생창의력 챔피언대회 오디션 시스템의 보조 멘토 AI입니다.
 사용자가 제출한 시나리오를 분석하여, 다음 5대 필수 요소가 잘 반영되었는지 확인하고 피드백을 제공합니다.
@@ -47,14 +46,11 @@ const PROMPT_APPLY_OPTION = `당신은 시나리오 수정 AI입니다. 아래 '
 function App() {
   const [teamName, setTeamName] = useState('');
   const [isLogged, setIsLogged] = useState(false);
-  const [apiKey, setApiKey] = useState(localStorage.getItem(API_KEY_STORAGE) || '');
-  
   const [teamData, setTeamData] = useState(null);
   const [scenario, setScenario] = useState('');
   
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [feedbackData, setFeedbackData] = useState(null);
-  
   const [isApplying, setIsApplying] = useState(false);
 
   // Login Handle
@@ -96,26 +92,26 @@ function App() {
     setFeedbackData(null);
   };
 
-  const handleSaveApiKey = () => {
-    localStorage.setItem(API_KEY_STORAGE, apiKey);
-    alert('API Key가 브라우저에 저장되었습니다.');
-  };
-
   const saveCurrentScenario = () => {
     if (!teamData) return;
     const newData = { ...teamData, scenario: scenario };
     localStorage.setItem(STORAGE_PREFIX + teamName, JSON.stringify(newData));
     setTeamData(newData);
-    alert('수정된 시나리오가 현재 팀 데이터에 저장되었습니다.');
+    alert('시나리오가 저장되었습니다.');
   };
 
-  const getGeminiModel = (sysPrompt) => {
-    if (!apiKey) throw new Error("API Key가 필요합니다.");
-    const genAI = new GoogleGenerativeAI(apiKey);
-    return genAI.getGenerativeModel({ 
-      model: "gemini-2.5-flash-preview-05-20",
-      systemInstruction: sysPrompt 
+  const callAPI = async (systemPrompt, userMessage) => {
+    const res = await fetch('/api/feedback', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ systemPrompt, userMessage }),
     });
+    if (!res.ok) {
+      const err = await res.json();
+      throw new Error(err.error || '서버 오류가 발생했습니다.');
+    }
+    const data = await res.json();
+    return data.text;
   };
 
   const requestFeedback = async () => {
@@ -126,18 +122,16 @@ function App() {
     try {
       setIsAnalyzing(true);
       setFeedbackData(null);
-      const model = getGeminiModel(PROMPT_GET_FEEDBACK);
-      
+
       const userMessage = `[팀 정보]
 원작: ${teamData.f_original || '미입력'}
 주인공: ${teamData.f_protagonist || '미입력'}
 [현재 시나리오]
 ${scenario}`;
 
-      const result = await model.generateContent(userMessage);
-      const output = result.response.text().replace(/```json/g, '').replace(/```/g, '').trim();
-      
-      const parsed = JSON.parse(output);
+      const output = await callAPI(PROMPT_GET_FEEDBACK, userMessage);
+      const cleaned = output.replace(/```json/g, '').replace(/```/g, '').trim();
+      const parsed = JSON.parse(cleaned);
       setFeedbackData(parsed);
     } catch (err) {
       console.error(err);
@@ -150,19 +144,16 @@ ${scenario}`;
   const applyOption = async (option) => {
     try {
       setIsApplying(true);
-      const model = getGeminiModel(PROMPT_APPLY_OPTION);
-      
+
       const userMessage = `[원본 시나리오]
 ${scenario}
 
 [사용자가 선택한 피드백 방향]
 ${option.title}: ${option.description}`;
 
-      const result = await model.generateContent(userMessage);
-      const modifiedScenario = result.response.text();
-      
+      const modifiedScenario = await callAPI(PROMPT_APPLY_OPTION, userMessage);
       setScenario(modifiedScenario);
-      setFeedbackData(null); // 초기화
+      setFeedbackData(null);
     } catch (err) {
       console.error(err);
       alert('시나리오 수정 중 오류가 발생했습니다: ' + err.message);
@@ -203,28 +194,15 @@ ${option.title}: ${option.description}`;
           <h1>🏆 2026 학생창의력 챔피언대회 – 시나리오 작성 시스템</h1>
           <div className="sub">시나리오 피드백 및 선택형 자동 수정 앱</div>
         </div>
-        <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
-          <div className="api-bar">
-            <KeyRound size={14} style={{ color: 'var(--muted)' }} />
-            <input 
-              type="password" 
-              placeholder="Gemini API Key" 
-              value={apiKey}
-              onChange={(e) => setApiKey(e.target.value)}
-            />
-            <button className="modal-btn-primary" style={{ width: 'auto', padding: '4px 10px', fontSize: '0.75rem' }} onClick={handleSaveApiKey}>
-              저장
-            </button>
-          </div>
-          
+        <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
           <div className="team-bar">
             <span>👥</span>
             <div>
-              <div style={{ fontSize: '0.68rem', color: 'var(--muted)' }}>현재 연동된 팀</div>
+              <div style={{ fontSize: '0.68rem', color: 'var(--muted)' }}>현재 팀</div>
               <div className="team-name-val">{teamName}</div>
             </div>
             <button className="modal-btn-primary" style={{ width: 'auto', padding: '4px 10px', fontSize: '0.75rem', marginLeft: '10px' }} onClick={handleLogout}>
-              로그아웃
+              팀 변경
             </button>
           </div>
         </div>
